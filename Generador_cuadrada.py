@@ -1,4 +1,4 @@
-def PWM(x: int, f: float, a: float, duty: float)-> int:
+def PWM(x, f, a ,duty):
     
      t = x / 512
      T = 1 / f
