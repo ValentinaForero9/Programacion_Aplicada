@@ -32,3 +32,10 @@ matriz_ovejas = [
 
 resultado = count_sheeps(matriz_ovejas)
 print(f"La cantidad de ovejas presentes es: {resultado}")
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def sum_array(a):
+    if not a:
+        return 0
+    return sum(a)
+print(sum_array([3,2,1,8 ]))
