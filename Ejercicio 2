@@ -1,0 +1,34 @@
+'''Considere una matriz/lista de ovejas en la que puede faltar alguna oveja en su lugar.
+Necesitamos una función que cuente la cantidad de ovejas presentes en la matriz (verdadero significa presente).
+
+Por ejemplo,
+
+[True,  True,  True,  False,
+  True,  True,  True,  True ,
+  True,  False, True,  False,
+  True,  False, False, True ,
+  True,  True,  True,  True ,
+  False, False, True,  True]
+La respuesta correcta sería 17.
+
+Sugerencia: No olvides comprobar si hay valores incorrectos como null/undefined
+'''
+def count_sheeps(sheep):
+    contador = 0
+    
+    for fila in sheep:
+        if fila is not None:
+            contador += sum(1 for oveja in fila if oveja is True)       
+    return contador
+
+matriz_ovejas = [
+    [False,  True,  True,  False],
+    [True,  True,  True,  True],
+    [True,  False, True,  False],
+    [True,  False, False, True],
+    [True,  True,  True,  True],
+    [False, False, True,  True]
+]
+
+resultado = count_sheeps(matriz_ovejas)
+print(f"La cantidad de ovejas presentes es: {resultado}")
