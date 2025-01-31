@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Brazo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; padding: 20px; }
+        h1, h2 { color: #100e0e; }
+        .section { margin-bottom: 20px; }
+        a { color: blue; text-decoration: none; cursor: pointer; }
+        a:hover { text-decoration: underline; }
+        pre { 
+            background-color: #f4f4f4; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            white-space: pre-wrap; /* Permite que el texto tenga saltos de línea */
+            word-wrap: break-word; /* Evita que el texto se desborde */
+            display: none; 
+        }
+        .codigo-container { display: none; }
+        .show { display: block; }
+        .video-container { display: none; margin-top: 20px; }
+
+        /* Estilos para las imágenes alineadas a la izquierda */
+        .image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px; /* Reduce el espacio entre imágenes */
+            text-align: center;
+            justify-content: flex-start; /* Alinea las imágenes a la izquierda */
+
+        }
+        .image-grid  {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 3 columnas */
+            gap: 20px;
+            text-align: center;
+        }
+        .image-grid div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 200px; /* Reduce el tamaño de cada imagen */
+        }
+        .image-grid img {
+            width: 100%; /* Ajusta el ancho al contenedor */
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .image-grid p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Informe Proyecto Final</h1>
+    
+    <div class="section">
+        <h2>Introducción</h2>
+        <p>Este informe tiene como objetivo detallar el proceso, desarrollo y funcionamiento de el brazo 
+             controlado mediante la Raspberry Pi Pico W. Permitiendo la manipulación de objetos mediante servomotores,
+              un sistema de visión basado en una cámara OV7670  y una interfaz de control remoto. A lo largo del informe,
+               se describen los materiales utilizados, su funcionamiento, codigos usados y videos explicativos.</p>
+    </div>
+    
+    <div class="section">
+        <h2>Materiales Utilizados</h2>
+        <div class="image-grid">
+            <div>
+                <p>Raspberry Pi Pico W</p>
+                <img src="Imagenes/raspberry.png" alt="Raspberry Pi Pico W">
+            </div>
+            <div>
+                <p>Jumpers</p>
+                <img src="Imagenes/jumpers.png" alt="Jumpers">
+            </div>
+            <div>
+                <p>Modulo de Camara OV7670</p>
+                <img src="Imagenes/camara.png" alt="Modulo de Camara OV7670">
+            </div>
+            <div>
+                <p>Servomotores</p>
+                <img src="Imagenes/servo.png" alt="Servomotores">
+            </div>
+            <div>
+                <p>Pantalla OLED</p>
+                <img src="Imagenes/oled.png" alt="Pantalla OLED">
+            </div>
+            <div>
+                <p>Brazo</p>
+                <img src="Imagenes/brazo.png" alt="Brazo">
+            </div>
+        </div>
+    </div>
+    
+    <h2>Manual de Funcionamiento</h2>
+     <ul>
+
+     <p><strong>Control Remoto:</strong> Para controlar el brazo, accede a la siguiente página: 
+     <a href="Informe_P.html" target="_blank">Control Remoto</a>.</p>  
+
+     <p><strong>Gemelo Virtual:</strong> Para visualizar y controlar el brazo en un entorno virtual, accede a la siguiente página: 
+     <a href="pagina_gemelo_virtual.html" target="_blank">Gemelo Virtual</a>.</p>
+
+            <li><a href="#" onclick="mostrarVideosFuncionamiento()">Videos de Funcionamiento</a></li>
+        </ul>
+        <div id="videos-funcionamiento" class="video-container">
+            <video controls width="640">
+                <source src="Videos de funcionamiento/video_1.mp4" type="video/mp4">
+                Tu navegador no soporta videos.
+            </video>
+            <br>
+            <video controls width="640">
+                <source src="videos/video2.mp4" type="video/mp4">
+                Tu navegador no soporta videos.
+            </video>
+        </div>
+    </div>
+
+    <div class="section" id="menu-codigos">
+        <h2>Diagrama de Bloques del Código</h2>
+        <ul>
+            <li><a onclick="mostrarCodigo('brazo-servos')">Brazo y Servos</a></li>
+            <li><a onclick="mostrarCodigo('pantalla-oled')">Pantalla Oled</a></li>
+            <li><a onclick="mostrarCodigo('gemelo-virtual')">Gemelo Virtual</a></li>
+            <li><a onclick="mostrarCodigo('sincronizacion')">Sincronización</a></li>
+            <li><a onclick="mostrarCodigo('control-remoto')">Control Remoto</a></li>
+            <li><a onclick="mostrarCodigo('camara-deteccion')">Cámara y Detección de Objetos</a></li>
+            <li><a onclick="mostrarCodigo('recoger-soltar')">Recoger y Soltar Objetos</a></li>
+            <li><a onclick="mostrarCodigo('deteccion-movimiento')">Detección de Objetos y Movimiento de Brazo</a></li>
+            <li><a onclick="mostrarCodigo('curva-de-bezier')">Curva de Bezier</a></li>
+            <li><a onclick="mostrarCodigo('objeto-virtual')">Objeto Virtual</a></li>
+        </ul>
+    </div>
+
+    <div id="codigo-container" class="codigo-container">
+        <h2 id="codigo-titulo"></h2>
+        <p id="codigo-descripcion"></p> 
+        <pre id="codigo-texto"></pre>
+        <br>
+        <button onclick="volverAlMenu()">Volver</button>
+    </div>
+
+    <div class="section">
+        <h2><strong>Mejoras por Realizar</strong></h2>
+        <ul>
+            <li><strong>Mejora en la precisión de los servomotores:</strong> Aumentar la precisión del movimiento de los servos mediante una calibración más detallada y el uso de sensores de posición que proporcionen retroalimentación en tiempo real.</li>
+            <li><strong>Optimización del algoritmo de detección de objetos:</strong> Mejorar el algoritmo de visión computacional para que la cámara OV7670 pueda detectar objetos con mayor rapidez y exactitud, incluso en condiciones de baja luminosidad.</li>
+            <li><strong>Mejoras en la interacción con el usuario:</strong> Añadir más opciones de control a través de la interfaz gráfica de la pantalla OLED, permitiendo un manejo más intuitivo y eficiente del brazo robótico.</li>
+            <li><strong>Automatización de tareas repetitivas:</strong> Programar secuencias automáticas para que el brazo pueda realizar tareas repetitivas de forma autónoma, como el apilamiento de objetos o el ensamblaje de piezas.</li>
+            <li><strong>Mayor capacidad de carga:</strong> Incorporar servomotores más robustos o un sistema de actuadores adicionales que permitan al brazo levantar y mover objetos de mayor peso.</li>
+        </ul>
+    </div>
+    
+
+    <div class="section">
+        <h2>Video de Presentación</h2>
+        <a href="#" onclick="mostrarVideoPresentacion()">Ver Video</a>
+        <div id="video-presentacion" class="video-container">
+            <video controls width="640">
+                <source src="videos/video_presentacion.mp4" type="video/mp4">
+                Tu navegador no soporta videos.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        function mostrarVideosFuncionamiento() {
+            document.getElementById("videos-funcionamiento").style.display = "block";
+        }
+
+        function mostrarVideoPresentacion() {
+            document.getElementById("video-presentacion").style.display = "block";
+        }
+
+        const titulos = {
+            'brazo-servos': 'Brazo y Servos',
+            'pantalla-oled': 'Pantalla Oled',
+            'gemelo-virtual': 'Gemelo Virtual',
+            'sincronizacion': 'Sincronización',
+            'control-remoto': 'Control Remoto',
+            'camara-deteccion': 'Cámara y Detección de Objetos',
+            'recoger-soltar': 'Recoger y Soltar Objetos',
+            'deteccion-movimiento': 'Detección de Objetos y Movimiento de Brazo',
+            'curva-de-bezier': 'Curva de Bezier',
+            'objeto-virtual': 'Objeto Virtual'
+        };
+
+        const codigos = {
+            'brazo-servos': 'Código del brazo y servos.',
+            'pantalla-oled': 'Código de la pantalla OLED.',
+            'gemelo-virtual': 'Código del gemelo virtual.',
+            'sincronizacion': 'Código de sincronización.',
+            'control-remoto': 'Código de control remoto.',
+            'camara-deteccion': 'Código de cámara y detección de objetos.',
+            'recoger-soltar': 'Código de recoger y soltar objetos.',
+            'deteccion-movimiento': 'Código de detección de objetos y movimiento de brazo.',
+            'curva-de-bezier': 'Código de curva de Bezier.',
+            'objeto-virtual': 'Código de objeto virtual.'
+        };
+
+        const descripciones = {
+            'brazo-servos': `
+               pwm_base = pwmio.PWMOut(board.GP16, frequency=50)<br>
+pwm_brazo = pwmio.PWMOut(board.GP17, frequency=50)<br>
+
+pwm_base_val = angulo_a_pwm(- angulo_base + 180)<br>
+pwm_brazo_val = angulo_a_pwm(angulo_brazo)<br>
+
+pwm_base.duty_cycle = pwm_base_val<br>
+pwm_brazo.duty_cycle = pwm_brazo_val<br>
+
+             `,
+            'pantalla-oled': `
+            i2c = busio.I2C(board.GP1, board.GP0)<br>
+oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c, reset=reset_pin)<br>
+
+oled.fill(0)<br>
+oled.show()<br>
+
+                
+            `,
+   
+            'gemelo-virtual': `
+            const sceneContainer = document.getElementById('sceneContainer');<br>
+const width = window.innerWidth;<br>
+const height = window.innerHeight * 0.8;<br>
+const scene = new THREE.Scene();<br>
+const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);<br>
+const renderer = new THREE.WebGLRenderer();<br>
+renderer.setSize(width, height);<br>
+sceneContainer.appendChild(renderer.domElement);<br>
+
+                
+            `,
+            'sincronizacion': `
+             def updateArmAngles(x, y):<br>
+    const maxRotation = Math.PI;  # 180 grados<br>
+    const maxRotation2 = Math.PI; # 180 grados<br>
+    const shoulderRotation = (x / 150) * maxRotation - maxRotation / 2;<br>
+    const elbowRotation = (y / 150) * maxRotation2 - maxRotation2 / 2;<br>
+    shoulder.rotation.x = shoulderRotation;<br>
+    Codo.rotation.x = elbowRotation;<br>
+}<br>
+  `,
+            'control-remoto': `
+               joystickContainer.addEventListener('mousedown', handleMove);<br>
+joystickContainer.addEventListener('mousemove', handleMove);<br>
+joystickContainer.addEventListener('mouseup', handleEnd);<br>
+joystickContainer.addEventListener('mouseleave', handleEnd);<br>
+joystickContainer.addEventListener('touchstart', handleMove);<br>
+joystickContainer.addEventListener('touchmove', handleMove);<br>
+joystickContainer.addEventListener('touchend', handleEnd);<br>
+
+            `,
+            'camara-deteccion': `
+                // Código de cámara y detección de objetos
+                function detectarObjetos() {
+                    console.log("Detectando objetos...");
+                }
+            `,
+            'recoger-soltar': `
+                // Código de recoger y soltar objetos
+                function recogerObjeto() {
+                    console.log("Recogiendo objeto...");
+                }
+            `,
+            'deteccion-movimiento': `
+               if 'GET /api' in request_str:<br>
+    match = re.search(r'GET /api\?([^\s]+) HTTP', request_str)<br>
+    if match:<br>
+        query_string = match.group(1)<br>
+        params = query_string.split('&')<br>
+        json_data = {}<br>
+        for param in params:<br>
+            key, value = param.split('=')<br>
+            json_data[key] = value<br>
+
+        x_val = float(json_data.get('x', 75))<br>
+        y_val = float(json_data.get('y', 75))  <br>
+
+        angulo_base = (x_val / 150) * 180   <br>
+        angulo_brazo = (y_val / 150) * 90 - 45  <br>
+        
+        draw_arm(angulo_base, angulo_brazo)<br>
+
+        pwm_base_val = angulo_a_pwm(- angulo_base + 180)<br>
+        pwm_brazo_val = angulo_a_pwm(angulo_brazo)<br>
+
+        pwm_base.duty_cycle = pwm_base_val<br>
+        pwm_brazo.duty_cycle = pwm_brazo_val<br>
+
+        print(f"Ángulo base: {angulo_base}, PWM base: {pwm_base_val}")<br>
+        print(f"Ángulo brazo: {angulo_brazo + 45}, PWM brazo: {pwm_brazo_val}")<br>
+
+            `,
+            'curva-de-bezier': `
+                // Código de curva de Bezier
+                function calcularCurva() {
+                    console.log("Calculando curva de Bezier...");
+                }
+            `,
+            'objeto-virtual': `
+               const geometry = new THREE.BoxGeometry(1, 1, 1);<br>
+const material = new THREE.MeshNormalMaterial();<br>
+const base = new THREE.Mesh(geometry, material);<br>
+base.translateY(0.5);<br>
+scene.add(base);<br>
+
+const shoulder = new THREE.Object3D();<br>
+shoulder.translateY(0.5);<br>
+base.add(shoulder);<br>
+
+const geometry2 = new THREE.BoxGeometry(0.5, 2, 0.5);<br>
+const PriBra = new THREE.Mesh(geometry2, material);<br>
+PriBra.translateY(1);<br>
+shoulder.add(PriBra);<br>
+
+const Codo = new THREE.Object3D();<br>
+Codo.translateY(1);<br>
+Codo.rotation.x = Math.PI / 2;<br>
+PriBra.add(Codo);<br>
+
+const geometry3 = new THREE.BoxGeometry(0.25, 2, 0.25);<br>
+const SegBra = new THREE.Mesh(geometry3, material);<br>
+SegBra.translateY(1);<br>
+Codo.add(SegBra);<br>
+
+camera.position.set(5, 3, -1);<br>
+camera.rotation.y = Math.PI / 2;<br>
+
+            `
+        };
+
+        function mostrarCodigo(id) {
+            document.getElementById('menu-codigos').style.display = 'none';
+            document.getElementById('codigo-titulo').textContent = titulos[id];
+            document.getElementById('codigo-descripcion').innerHTML = descripciones[id];
+            document.getElementById('codigo-texto').textContent = codigos[id] || "// Código no disponible";
+            document.getElementById('codigo-container').classList.add('show');
+        }
+
+        function volverAlMenu() {
+            document.getElementById('menu-codigos').style.display = 'block';
+            document.getElementById('codigo-container').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
