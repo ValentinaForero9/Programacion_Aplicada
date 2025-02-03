@@ -84,9 +84,24 @@
             align-items: center;
         }
 
-        .row {
-            display: flex;
-            justify-content: center;
+            .code-wrapper {
+    text-align: center;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.code-block {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border: 1px solid #ccc;
+    min-width: 150px;
+    text-align: center;
+}
         }
     </style>
 </head>
@@ -167,33 +182,32 @@
     <div class="section" id="menu-codigos">
         <h2>Diagrama de Bloques del Código</h2>
         <div class="code-grid">
-            <div class="code-link-container">
+            <div class="code-block">
                 <a href="javascript:void(0);" onclick="mostrarCodigo('brazo-servos')">Brazo y Servos</a>
-                <div class="arrow">⬇</div>
-            </div>
-            <div class="row">
-                <div class="code-link-container">
+                
+            
+                <div class="code-block">
                     <a href="javascript:void(0);" onclick="mostrarCodigo('pantalla-oled')">Pantalla Oled</a>
-                    <div class="arrow">⬇</div>
+                    
                 </div>
-                <div class="code-link-container">
+                <div class="code-block">
                     <a href="javascript:void(0);" onclick="mostrarCodigo('gemelo-virtual y Sincronización')">Gemelo Virtual y Sincronización</a>
-                    <div class="arrow">⬇</div>
+                    
                 </div>
             </div>
             
             
-            <div class="code-link-container">
+            <div class="code-block">
                 <a href="javascript:void(0);" onclick="mostrarCodigo('camara-deteccion')">Cámara y Detección de objeto</a>
-                <div class="arrow">⬇</div>
+                
             </div>
-            <div class="code-link-container">
+            <div class="code-block">
                 <a href="javascript:void(0);" onclick="mostrarCodigo('recoger-soltar')">Recoger y Soltar Objeto</a>
-                <div class="arrow">⬇</div>
+                
             </div>
-            <div class="code-link-container">
+            <div class="code-block">
                 <a href="javascript:void(0);" onclick="mostrarCodigo('deteccion-movimiento')">Detección de Objeto y Movimiento con Curva de Bezier</a>
-                <div class="arrow">⬇</div>
+                
             </div>
 
             </div>
