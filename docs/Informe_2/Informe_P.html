@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Proyecto Final</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; padding: 20px; }
+        h1, h2 { color: #100e0e; }
+        .section { margin-bottom: 20px; }
+        a { color: blue; text-decoration: none; cursor: pointer; }
+        a:hover { text-decoration: underline; }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .codigo-container { display: none; }
+        
+        .show { display: block; }
+        .video-container { display: none; margin-top: 20px; }
+        .image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            text-align: center;
+            justify-content: flex-start;
+
+        }
+        .image-grid div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 150px;
+}
+
+.image-grid img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.image-grid span {
+    margin-top: 5px;
+    font-size: 20px;
+    text-align: center;
+}
+        .code-link-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #e3e3e3;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px;
+            text-align: center;
+            width: 200px;
+        }
+
+        .code-link-container a {
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .code-link-container a:hover {
+            text-decoration: underline;
+        }
+
+        .arrow {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        .code-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Informe Proyecto Final</h1>
+
+    <div class="section">
+        <h2>Introducción</h2>
+        <p>Este informe tiene como objetivo detallar el proceso, desarrollo y funcionamiento
+            de un brazo robótico controlado mediante la Raspberry Pi Pico W. El sistema permite
+            la manipulación de objetos utilizando servomotores, un sistema de visión basado en
+            una cámara OV7670 y una interfaz de control remoto. La futura aplicación del brazo será
+            la incorporación de una red neuronal que permitirá al brazo aprender y realizar 
+            tareas de manera autónoma.
+            A lo largo del informe, se describen los materiales utilizados, su funcionamiento, los códigos
+            implementados, así como videos explicativos que muestran el desempeño del sistema en tiempo 
+            real.</p>
+    </div>
+
+    <div class="section">
+        <h2>Materiales Utilizados</h2>
+        <div class="image-grid">
+            <div>
+                <img src="Imagenes/raspberry.png" alt="Raspberry Pi Pico W">
+                <span>Raspberry Pi Pico W</span>
+            </div>
+            <div>
+                <img src="Imagenes/jumpers.png" alt="Jumpers">
+                <span>Jumpers</span>
+            </div>
+            <div>
+                <img src="Imagenes/camara.png" alt="Cámara OV7670">
+                <span>Cámara OV7670</span>
+            </div>
+            <div>
+                <img src="Imagenes/servo.png" alt="Servomotores">
+                <span>Servomotores</span>
+            </div>
+            <div>
+                <img src="Imagenes/oled.png" alt="Pantalla OLED">
+                <span>Pantalla OLED</span>
+            </div>
+            <div>
+                <img src="Imagenes/brazo.png" alt="Brazo">
+                <span>Brazo</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Manual de Funcionamiento</h2>
+        <ul>
+            <li>
+                <strong>Gemelo Virtual y Control Remoto:</strong> Para visualizar y controlar el brazo en un entorno virtual, accede a la siguiente página:
+                <a href="paginas/index.html" target="_blank">Gemelo Virtual y Control Remoto</a>
+            </li>
+            <li><a href="javascript:void(0);" onclick="mostrarVideosFuncionamiento()">Videos de Funcionamiento</a></li>
+        </ul>
+
+        <div id="videos-funcionamiento" class="video-container" style="display: none;">
+            <div class="video-item">
+                <h3>Movimiento del Brazo - Video 1</h3>
+                <video controls width="640">
+                    <source src="Videos de funcionamiento/video_1.mp4" type="video/mp4">
+                    Tu navegador no soporta videos.
+                </video>
+            </div>
+            <div class="video-item">
+                <h3>Camara y Brazo virtual</h3>
+                <video controls width="640">
+                    <source src="Videos de funcionamiento/camaraybrazo.mp4" type="video/mp4">
+                    Tu navegador no soporta videos.
+                </video>
+            </div>
+        </div>
+    </div>
+    <div class="section" id="menu-codigos">
+        <h2>Diagrama de Bloques del Código</h2>
+        <div class="code-grid">
+            <div class="code-link-container">
+                <a href="javascript:void(0);" onclick="mostrarCodigo('brazo-servos')">Brazo y Servos</a>
+                <div class="arrow">⬇</div>
+            </div>
+            <div class="row">
+                <div class="code-link-container">
+                    <a href="javascript:void(0);" onclick="mostrarCodigo('pantalla-oled')">Pantalla Oled</a>
+                    <div class="arrow">⬇</div>
+                </div>
+                <div class="code-link-container">
+                    <a href="javascript:void(0);" onclick="mostrarCodigo('gemelo-virtual')">Gemelo Virtual</a>
+                    <div class="arrow">⬇</div>
+                </div>
+            </div>
+            <div class="code-link-container">
+                <a href="javascript:void(0);" onclick="mostrarCodigo('control-remoto')">Control Remoto</a>
+                <div class="arrow">⬇</div>
+            </div>
+            <div class="code-link-container">
+                <a href="javascript:void(0);" onclick="mostrarCodigo('camara-deteccion')">Cámara y Detección</a>
+                <div class="arrow">⬇</div>
+            </div>
+            <div class="code-link-container">
+                <a href="javascript:void(0);" onclick="mostrarCodigo('recoger-soltar')">Recoger y Soltar</a>
+                <div class="arrow">⬇</div>
+            </div>
+            <div class="code-link-container">
+                <a href="javascript:void(0);" onclick="mostrarCodigo('deteccion-movimiento')">Detección de Movimiento</a>
+                <div class="arrow">⬇</div>
+            </div>
+            <div class="code-link-container">
+                <a href="javascript:void(0);" onclick="mostrarCodigo('curva-de-bezier')">Curva de Bezier</a>
+                <div class="arrow">⬇</div>
+            </div>
+            <div class="code-link-container">
+                <a href="javascript:void(0);" onclick="mostrarCodigo('objeto-virtual')">Objeto Virtual</a>
+                <div class="arrow">⬇</div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div id="codigo-container" class="codigo-container">
+        <h2 id="codigo-titulo"></h2>
+        <p id="codigo-descripcion"></p>
+        <pre><code id="codigo-texto" class="language-python"></code></pre>
+        <br>
+        <button onclick="volverAlMenu()">Volver</button>
+    </div>
+
+    <div class="section">
+        <h2>Mejoras por Realizar</h2>
+        <ul>
+            <li><strong>Optimización del algoritmo de detección de objetos:</strong> Mejorar el algoritmo de visión computacional para que la cámara OV7670 pueda detectar objetos con mayor rapidez y exactitud, incluso en condiciones de baja luminosidad.</li>
+            <li><strong>Mejoras en la interacción con el usuario:</strong> Añadir más opciones de control a través de la interfaz gráfica de la pantalla OLED, permitiendo un manejo más intuitivo y eficiente del brazo robótico.</li>
+            <li><strong>Automatización de tareas repetitivas:</strong> Programar secuencias automáticas para que el brazo pueda realizar tareas repetitivas de forma autónoma, como el apilamiento de objetos o el ensamblaje de piezas.</li>
+            <li><strong>Mayor capacidad de carga:</strong> Incorporar servomotores más robustos o un sistema de actuadores adicionales que permitan al brazo levantar y mover objetos de mayor peso.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Video de Presentación</h2>
+        <ul>
+            <li><a href="javascript:void(0);" onclick="mostrarVideoPresentacion()">Ver Video</a></li>
+        </ul>
+        <div id="video-presentacion" class="video-container">
+            <video controls width="640">
+                <source src="videos/video_presentacion.mp4" type="video/mp4">
+                Tu navegador no soporta videos.
+            </video>
+        </div>
+    </div>
+    <div class="section">
+        <h6>Autores:
+        <li>Andres Andrade Sandoval</li>
+        <li>Karen Valentina Forero Marentes</li>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script>
+        const titulos = {
+            'brazo-servos': 'Brazo y Servos',
+            'pantalla-oled': 'Pantalla Oled',
+            'gemelo-virtual': 'Gemelo Virtual',
+            'control-remoto': 'Control Remoto',
+            'camara-deteccion': 'Cámara y Detección de Objetos',
+            'recoger-soltar': 'Recoger y Soltar Objetos',
+            'deteccion-movimiento': 'Detección de Objetos y Movimiento de Brazo',
+            'curva-de-bezier': 'Curva de Bezier',
+            'objeto-virtual': 'Objeto Virtual'
+        };
+
+        const codigos = {
+            'brazo-servos': `from machine import Pin, PWM
+import math
+
+class Brazo:
+
+    def __init__(self):
+
+        self.PWM_E1 = PWM(Pin(18))
+        self.PWM_E2 = PWM(Pin(19))
+        self.PWM_E1.freq(50)
+        self.PWM_E2.freq(50)
+
+    def Cinematica_Inversa(self, x: float, y: float,
+                        l1 = 1.5, l2 = 1) -> list:
+
+        cos_q2 = (x * x + y * y - l1 * l1 - l2 * l2) / (2 * l1 * l2)
+        cos_q2_clamped = max(-1, min(1, cos_q2))
+        sin_q2 = math.sqrt(1 - (cos_q2_clamped * cos_q2_clamped))
+        q2 = math.atan2(sin_q2, cos_q2)
+        q1 = math.atan2(y, x) - math.atan2(l2 * math.sin(q2), l1 + l2 * math.cos(q2))
+
+        return [round((q1 * 180) / math.pi, 2), round((q2 * 180) / math.pi, 2)]
+
+    def Angulo_PWM(self, angulo: float) -> int:
+
+        return int((36.111 * angulo) + 1650)
+
+    def detener(self):
+        self.PWM_E1.deinit()
+        self.PWM_E2.deinit()
+
+    def Movimiento(self, x: float, y: float, l1 = 1.5, l2 = 1):
+
+        xl = (0.02936 * x) - 2.43
+        yl = (-0.0315 * y) + 2.3
+
+        q1, q2 = self.Cinematica_Inversa(xl, yl, l1, l2)
+
+        if (q1 < 0):
+            q1 += 360
+        if (q2 < 0):
+            q2 += 360
+
+        self.PWM_E1.duty_u16(self.Angulo_PWM(q1))
+        self.PWM_E2.duty_u16(self.Angulo_PWM(-(q2 + q1) + 310))`,
+
+            'pantalla-oled': `from machine import Pin, I2C
+from ssd1306 import SSD1306_I2C
+import math
+from movimiento import Brazo
+
+class ArmDrawer:
+    def __init__(self, scl_pin=1, sda_pin=0, width=128, height=32):
+
+        self.i2c = I2C(0, scl=Pin(scl_pin), sda=Pin(sda_pin))
+        self.oled = SSD1306_I2C(width, height, self.i2c)
+        self.oled.fill(0)
+        self.brazo = Brazo()
+
+    def draw_arm(self, x: float, y: float):
+
+        q1, q2 = self.brazo.Cinematica_Inversa((0.02936 * x) - 2.43, (-0.0315 * y) + 2.3)
+        self.oled.fill(0)
+
+        an1 = math.radians(q1)
+        cx = int(18 * math.cos(an1))
+        cy = int(18 * math.sin(an1))
+
+        an2 = math.radians(q2) + an1
+        cx1 = int(10 * math.cos(an2))
+        cy1 = int(10 * math.sin(an2))
+
+        px0 = (63, 28)
+        py0 = (63 + cx, 28 - cy)
+
+        py1 = (63 + cx + cx1, 28 - cy - cy1)
+
+        self.oled.line(px0[0], px0[1], py0[0], py0[1], 1)
+        self.oled.line(py0[0], py0[1], py1[0], py1[1], 1)
+
+        self.oled.show()
+'''
+arm = ArmDrawer()
+arm.draw_arm(90, 90)
+'''`,
+
+            'gemelo-virtual': `// Variables para el joystick de la cámara (usando nipplejs)
+var cameraJoystick = nipplejs.create({
+    zone: document.getElementById('joystickCamera'),
+    mode: 'static',
+    position: { left: '50px', bottom: '50px' },
+    color: 'blue',
+    size: 100
+});
+
+var cameraRotation = { x: 0, y: 0 };
+// Actualizar rotación de la cámara
+function updateCameraRotation() {
+    camera.position.x = 5 * Math.sin(cameraRotation.y);
+    camera.position.z = 5 * Math.cos(cameraRotation.y);
+    camera.lookAt(0, 0.5, 0);
+}
+
+cameraJoystick.on('move', function (evt, data) {
+    if (data.direction) {
+        if (data.direction.angle === 'left') {
+            cameraRotation.y -= 0.05;
+        }
+        if (data.direction.angle === 'right') {
+            cameraRotation.y += 0.05;
+        }
+        updateCameraRotation();
+    }
+});
+// Variables para el joystick del brazo
+const joystickArm = document.getElementById('joystickArm');
+const joystickArmContainer = document.getElementById('joystickArmContainer');
+let armPos = { x: 50, y: 50 };
+// Obtener posición del joystick del brazo
+function getJoystickPosition(event) {
+    const rect = joystickArmContainer.getBoundingClientRect();
+    const offsetX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+    const offsetY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+    const x = Math.min(Math.max(offsetX - 25, 0), rect.width - 50);
+    const y = Math.min(Math.max(offsetY - 25, 0), rect.height - 50);
+    return { x, y };
+}
+
+function updateArmJoystickPosition(event) {
+    const { x, y } = getJoystickPosition(event);
+    joystickArm.style.left = '{x}px';
+    joystickArm.style.top = '{y}px';
+    return { x, y };
+}
+
+function handleArmMove(event) {
+    event.preventDefault();
+    armPos = updateArmJoystickPosition(event);
+    sendMessage(JSON.stringify({dx: armPos.x, dy: armPos.y}));
+}
+
+function handleArmEnd() {
+    joystickArm.style.left = '50px';
+    joystickArm.style.top = '50px';
+    armPos = { x: 50, y: 50 };
+    sendMessage(JSON.stringify({dx: 50, dy: 50}));
+
+}
+// Eventos para el joystick del brazo
+joystickArmContainer.addEventListener('mousedown', handleArmMove);
+joystickArmContainer.addEventListener('mousemove', handleArmMove);
+joystickArmContainer.addEventListener('mouseup', handleArmEnd);
+joystickArmContainer.addEventListener('mouseleave', handleArmEnd);
+joystickArmContainer.addEventListener('touchstart', handleArmMove);
+joystickArmContainer.addEventListener('touchmove', handleArmMove);
+joystickArmContainer.addEventListener('touchend', handleArmEnd);
+// WebSocket support
+var targetUrl = "ws://{location.host}/ws";
+var websocket;
+window.addEventListener("load", onLoad);
+
+function onLoad() {
+initializeSocket();
+}
+
+function initializeSocket() {
+    console.log("Opening WebSocket connection MicroPython Server...");
+    websocket = new WebSocket(targetUrl);
+    websocket.onopen = onOpen;
+    websocket.onclose = onClose;
+    websocket.onmessage = onMessage;
+}
+function onOpen(event) {
+    console.log("Starting connection to WebSocket server..");
+}
+function onClose(event) {
+    console.log("Closing connection to server..");
+    setTimeout(initializeSocket, 2000);
+}
+function onMessage(event) {
+    console.log("WebSocket message received:", event);
+}
+
+function sendMessage(message) {
+    websocket.send(message);
+}
+
+const sceneContainer = document.getElementById('sceneContainer');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+sceneContainer.appendChild(renderer.domElement);
+// Cube (Base del robot)
+var geometry = new THREE.BoxGeometry(1.5, 0.1, 1.8);
+var material = new THREE.MeshStandardMaterial({ color: 0xa98307 });
+var cube = new THREE.Mesh(geometry, material);
+cube.castShadow = true;
+cube.position.set(0, 1, 0);
+scene.add(cube);
+// Front Plate
+var placa_geo1 = new THREE.BoxGeometry(0.1, 0.25, 0.9);
+var placa1 = new THREE.Mesh(placa_geo1, material);
+placa1.castShadow = true;
+placa1.position.set(-0.1, 1.25, 0.25);
+scene.add(placa1);
+// Right side Plate
+var placa_geo2 = new THREE.BoxGeometry(1, 2, 0.1);
+var placa2 = new THREE.Mesh(placa_geo2, material);
+placa2.castShadow = true;
+placa2.position.set(0.25, 1, -0.25);
+scene.add(placa2);
+// Left side Plate
+var placa_geo3 = new THREE.BoxGeometry(1, 2, 0.1);
+var placa3 = new THREE.Mesh(placa_geo3, material);
+placa3.castShadow = true;
+placa3.position.set(0.25, 1, 0.75);
+scene.add(placa3);
+// Back Plate
+var placa_geo4 = new THREE.BoxGeometry(0.1, 0.25, 0.9);
+var placa4 = new THREE.Mesh(placa_geo4, material);
+placa4.castShadow = true;
+placa4.position.set(0.65, 1.25, 0.25);
+scene.add(placa4);
+// Rotor 1
+var rotor1 = new THREE.Object3D();
+rotor1.position.set(0, 0.5, 0);
+cube.add(rotor1);
+// Articulacion 1
+var size_position1 = 0.5;
+var arti1_geo = new THREE.BoxGeometry(size_position1, 0.1, 0.05);
+var arti1 = new THREE.Mesh(arti1_geo, material);
+arti1.castShadow = true;
+arti1.position.set(size_position1 / 2, 0, 0);
+rotor1.add(arti1);
+// Rotor 2
+var rotor2 = new THREE.Object3D();
+rotor2.position.set(0.25, 0, 0);
+arti1.add(rotor2);
+// Articulacion 2
+var size_position2 = 1.5;
+var arti2_geo = new THREE.BoxGeometry(0.1, size_position2, 0.05);
+var arti2 = new THREE.Mesh(arti2_geo, material);
+arti2.castShadow = true;
+arti2.position.set(0, size_position2 / 2, 0);
+rotor2.add(arti2);
+// Rotor 3
+var rotor3 = new THREE.Object3D();
+rotor3.position.set(0, 0.75, 0);
+arti2.add(rotor3);
+// Articulacion 3
+var size_position3 = 1.5;
+var arti3_geo = new THREE.BoxGeometry(size_position3, 0.1, 0.05);
+var arti3 = new THREE.Mesh(arti3_geo, material);
+arti3.castShadow = true;
+arti3.position.set(-size_position3 / 2, 0, 0);
+rotor3.add(arti3);
+// Rotor 4
+var rotor4 = new THREE.Object3D();
+rotor4.position.set(0, 0.5, 0);
+cube.add(rotor4);
+// Articulacion 4
+var size_position4 = 1.5;
+var arti4_geo = new THREE.BoxGeometry(0.1, size_position4, 0.05);
+var arti4 = new THREE.Mesh(arti4_geo, material);
+arti4.castShadow = true;
+arti4.position.set(0, size_position4 / 2, 0);
+rotor4.add(arti4);
+// Rotor 5
+var rotor5 = new THREE.Object3D();
+rotor5.position.set(0, 0.5, 0.5);
+cube.add(rotor5);
+// Articulacion 5
+var size_position5 = 1.5;
+var arti5_geo = new THREE.BoxGeometry(0.1, size_position5, 0.05);
+var arti5 = new THREE.Mesh(arti5_geo, material);
+arti5.castShadow = true;
+arti5.position.set(0, size_position5 / 2, 0);
+rotor5.add(arti5);
+// Rotor 6
+var rotor6 = new THREE.Object3D();
+rotor6.position.set(0.5, 0.75, 0.5);
+cube.add(rotor6);
+// Articulacion 6
+var size_position6 = 1.4;
+var arti6_geo = new THREE.BoxGeometry(0.1, size_position6, 0.05);
+var arti6 = new THREE.Mesh(arti6_geo, material);
+arti6.castShadow = true;
+arti6.position.set(0, (size_position6 / 2), 0);
+rotor6.add(arti6);
+// Rotor 7
+var rotor7 = new THREE.Object3D();
+rotor7.position.set(0, 0.75, 0);
+arti5.add(rotor7);
+// Articulacion 7
+var size_position7 = 1;
+var arti7_geo = new THREE.BoxGeometry(size_position7, 0.1, 0.05);
+var arti7 = new THREE.Mesh(arti7_geo, material);
+arti7.castShadow = true;
+arti7.position.set(-size_position7 / 2, 0, 0);
+rotor7.add(arti7);
+// Rotor 8
+var rotor8 = new THREE.Object3D();
+rotor8.position.set(0, 0.75, 0);
+arti6.add(rotor8);
+// Articulacion 8
+var size_position8 = 0.6;
+var arti8_geo = new THREE.BoxGeometry(size_position8, 0.1, 0.05);
+var arti8 = new THREE.Mesh(arti8_geo, material);
+arti8.castShadow = true;
+arti8.position.set(-size_position8 / 2, 0, 0);
+rotor8.add(arti8);
+// mano
+var mano_geo = new THREE.BoxGeometry(0.1, 0.1, 0.5);
+var mano = new THREE.Mesh(mano_geo, material);
+mano.castShadow = true;
+mano.position.set(-0.5, 0, -0.25);
+arti7.add(mano);
+
+function Cinematica_Directa(x1, y1){
+
+    var x = (0.02936 * x1) - 2.43;
+    var y = (-0.0315 * y1) + 2.3;
+    var q1 = Cinematica_Inversa(x, y, 1.5, 1)[0];
+    var q2 = Cinematica_Inversa(x, y, 1.5, 1)[1];
+
+    const q1r = ((q1 - 90) * Math.PI) / 180;
+    const q2r = (((q2 - 90) * Math.PI) / 180) + q1r;
+    rotor1.rotation.z = q2r;
+    rotor2.rotation.z = q1r - q2r;
+    rotor3.rotation.z = - q1r + q2r;
+    rotor4.rotation.z = q1r;
+    rotor5.rotation.z = q1r;
+    rotor6.rotation.z = q1r;
+    rotor7.rotation.z = - q1r + q2r;
+    rotor8.rotation.z = (Math.PI / 7.5) - q1r;
+
+}
+
+function Cinematica_Inversa(x, y, l1, l2) {
+
+    const cos_q2 = (x * x + y * y - l1 * l1 - l2 * l2) / (2 * l1 * l2);
+    const cos_q2_clamped = Math.max(-1, Math.min(1, cos_q2));
+    const sin_q2 = Math.sqrt(1 - cos_q2_clamped ** 2);
+    const q2 = Math.atan2(sin_q2, cos_q2_clamped);
+    const q1 = Math.atan2(y, x) - Math.atan2(l2 * Math.sin(q2), l1 + l2 * Math.cos(q2));
+    const q1_degrees = Math.round((q1 * 180) / Math.PI * 100) / 100;
+    const q2_degrees = Math.round((q2 * 180) / Math.PI * 100) / 100;
+
+    return [q1_degrees, q2_degrees];
+}
+// Light
+var light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5, 10, 5);
+light.castShadow = true;
+scene.add(light);
+// Plane
+var planeGeometry = new THREE.PlaneGeometry(20, 20);
+var planeMaterial = new THREE.MeshStandardMaterial({ color: 0xfff0f0 });
+var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = -Math.PI / 2;
+plane.receiveShadow = true;
+plane.position.y = 0;
+scene.add(plane);
+
+camera.position.set(3, 3, 4);
+var cameraRotation = { x: 0, y: 0 };
+camera.lookAt(0, 0.5, 0);
+
+function animate() {
+    requestAnimationFrame(animate);
+    Cinematica_Directa(armPos.x, armPos.y);
+    renderer.render(scene, camera);
+}
+
+animate();
+
+`,
+            'control-remoto': `* body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        #sceneContainer {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        /* Estilo para el joystick de la cámara (abajo a la izquierda) */
+        #joystickCamera {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+        /* Estilo para el joystick del brazo (abajo a la derecha) */
+        #joystickArmContainer {
+            width: 150px;
+            height: 150px;
+            background-color: #000000;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 20px;
+            right: 20px; /* Posicionado en la esquina inferior derecha */
+            touch-action: none;
+        }
+        #joystickArm {
+            width: 50px;
+            height: 50px;
+            background-color: #8d0808;
+            border-radius: 50%;
+            position: absolute;
+            left: 50px;
+            top: 50px;
+        }`,
+            'camara-deteccion': `
+const canvas = document.getElementById("cameraFeed");
+const ctx = canvas.getContext("2d");
+const width = 80;
+const height = 60;
+
+const thresholdInput = document.getElementById("threshold");
+const thresholdValueDisplay = document.getElementById("thresholdValue");
+const blackPointDisplay = document.getElementById("blackPoint");
+
+let threshold = parseInt(thresholdInput.value, 10);
+
+thresholdInput.addEventListener("input", () => {
+    threshold = parseInt(thresholdInput.value, 10);
+    thresholdValueDisplay.textContent = threshold;
+});
+
+// WebSocket support
+var targetUrl = ws://{location.host}/ws;
+var websocket;
+window.addEventListener("load", onLoad);
+
+function onLoad() {
+    initializeSocket();
+}
+
+function initializeSocket() {
+    console.log("Opening WebSocket connection MicroPython Server...");
+    websocket = new WebSocket(targetUrl);
+    websocket.onopen = onOpen;
+    websocket.onclose = onClose;
+    websocket.onmessage = onMessage;
+}
+function onOpen(event) {
+    console.log("Starting connection to WebSocket server..");
+}
+function onClose(event) {
+    console.log("Closing connection to server..");
+    setTimeout(initializeSocket, 2000);
+}
+function onMessage(event) {
+    console.log("WebSocket message received:", event);
+}
+
+function sendMessage(message) {
+    websocket.send(message);
+}
+
+function onMessage(event) {
+    console.log("WebSocket message received:", event);
+    if (event.data instanceof Blob) {
+        event.data.arrayBuffer().then(buffer => {
+            updateValues(buffer);
+        });
+    } else {
+        updateValues(event.data);
+    }
+}
+
+function updateValues(buffer) {
+
+    const imgData = new Uint8Array(buffer);
+    const imageData = ctx.createImageData(width, height);
+    let grayscaleData = [];
+
+    for (let i = 0; i < imgData.length; i += 2) {
+        const rgb565 = (imgData[i] << 8) | imgData[i + 1];
+        const r = ((rgb565 >> 11) & 0x1F) * 8;
+        const g = ((rgb565 >> 5) & 0x3F) * 4;
+        const b = (rgb565 & 0x1F) * 8;
+        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+        grayscaleData.push(gray);
+
+        const index = (i / 2) * 4;
+        imageData.data[index] = r;
+        imageData.data[index + 1] = g;
+        imageData.data[index + 2] = b;
+        imageData.data[index + 3] = 255; // Alpha
+    }
+
+    let minGray = 255;
+            let blackPointPosition = "N/A";
+
+            for (let y = 2; y < height - 2; y++) {
+                for (let x = 2; x < width - 2; x++) {
+                    const index = y * width + x;
+                    if (grayscaleData[index] < minGray) {
+                        minGray = grayscaleData[index];
+                        blackPointPosition = ({x}, {y});
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            blackPointDisplay.textContent = Black Point Position: {blackPointPosition};
+}`,
+
+
+
+
+
+            'recoger-soltar': `function recogerSoltar() {
+    console.log("Recoger y soltar objetos");
+}`,
+            'deteccion-movimiento': `# main.py
+from microdot_asyncio import Microdot, Response, send_file
+from microdot_utemplate import render_template
+from microdot_asyncio_websocket import with_websocket
+#import uasyncio as asyncio
+import time
+import machine
+import ujson
+
+uart = machine.UART(0, baudrate=2500000, tx=machine.Pin(16), rx=machine.Pin(17))
+WIDTH = 40
+HEIGHT = 30
+IMAGE_SIZE = WIDTH * HEIGHT * 2  # 40x30 píxeles, 2 bytes por píxel RGB565
+
+# Initialize MicroDot
+app = Microdot()
+Response.default_content_type = 'text/html'
+
+# root route
+@app.route('/')
+async def index(request):
+    return render_template('index.html')
+
+# initialize websocket
+@app.route('/ws')
+@with_websocket
+async def read_sensor(request, ws):
+
+    while True:
+
+#***************************************************************************
+        buffer = bytearray()  # Buffer para la imagen
+        if uart.any():  # Si hay datos en el buffer UART
+
+            data = uart.read()  # Leer datos disponibles
+            buffer.extend(data)
+
+            # Esperar hasta recibir una imagen completa
+            if len(buffer) >= IMAGE_SIZE:
+                image = buffer[:IMAGE_SIZE]  # Extraer imagen completa
+                buffer = buffer[IMAGE_SIZE:]  # Limpiar buffer
+                #print(f"Imagen de {len(image)} bytes recibida")
+                #find_darkest_pixel(image)
+                await ws.send(image)
+
+
+
+
+#***************************************************************************
+
+
+# Static CSS/JSS
+@app.route("/static/<path:path>")
+def static(request, path):
+    if ".." in path:
+        # directory traversal is not allowed
+        return "Not found", 404
+    return send_file("static/" + path)
+
+# shutdown
+@app.get('/shutdown')
+def shutdown(request):
+    request.app.shutdown()
+    return 'The server is shutting down...'
+
+
+if __name__ == "__main__":
+    try:
+        app.run()
+    except KeyboardInterrupt:
+
+        pass
+`,
+            'curva-de-bezier': `// Variables para el joystick de la cámara (usando nipplejs)
+var cameraJoystick = nipplejs.create({
+    zone: document.getElementById('joystickCamera'),
+    mode: 'static',
+    position: { left: '50px', bottom: '50px' },
+    color: 'blue',
+    size: 100
+});
+
+var cameraRotation = { x: 0, y: 0 };
+// Actualizar rotación de la cámara
+function updateCameraRotation() {
+    camera.position.x = 5 * Math.sin(cameraRotation.y);
+    camera.position.z = 5 * Math.cos(cameraRotation.y);
+    camera.lookAt(0, 0.5, 0);
+}
+
+cameraJoystick.on('move', function (evt, data) {
+    if (data.direction) {
+        if (data.direction.angle === 'left') {
+            cameraRotation.y -= 0.05;
+        }
+        if (data.direction.angle === 'right') {
+            cameraRotation.y += 0.05;
+        }
+        updateCameraRotation();
+    }
+});
+// Variables para el joystick del brazo
+const joystickArm = document.getElementById('joystickArm');
+const joystickArmContainer = document.getElementById('joystickArmContainer');
+let armPos = { x: 50, y: 50 };
+
+const canvas = document.getElementById("cameraFeed");
+const ctx = canvas.getContext("2d");
+const width = 40;
+const height = 30;
+
+const thresholdInput = document.getElementById("threshold");
+const thresholdValueDisplay = document.getElementById("thresholdValue");
+const blackPointDisplay = document.getElementById("blackPoint");
+
+let threshold = parseInt(thresholdInput.value, 10);
+
+thresholdInput.addEventListener("input", () => {
+    threshold = parseInt(thresholdInput.value, 10);
+    thresholdValueDisplay.textContent = threshold;
+});
+
+// Obtener posición del joystick del brazo
+function getJoystickPosition(event) {
+    const rect = joystickArmContainer.getBoundingClientRect();
+    const offsetX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+    const offsetY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+    const x = Math.min(Math.max(offsetX - 25, 0), rect.width - 50);
+    const y = Math.min(Math.max(offsetY - 25, 0), rect.height - 50);
+    return { x, y };
+}
+
+function updateArmJoystickPosition(event) {
+    const { x, y } = getJoystickPosition(event);
+    joystickArm.style.left = '{x}px';
+    joystickArm.style.top = '{y}px';
+    return { x, y };
+}
+
+function handleArmMove(event) {
+    event.preventDefault();
+    armPos = updateArmJoystickPosition(event);
+    //sendMessage(JSON.stringify({dx: armPos.x, dy: armPos.y}));
+}
+
+function handleArmEnd() {
+    joystickArm.style.left = '50px';
+    joystickArm.style.top = '50px';
+    armPos = { x: 50, y: 50 };
+    //sendMessage(JSON.stringify({dx: 50, dy: 50}));
+
+}
+// Eventos para el joystick del brazo
+joystickArmContainer.addEventListener('mousedown', handleArmMove);
+joystickArmContainer.addEventListener('mousemove', handleArmMove);
+joystickArmContainer.addEventListener('mouseup', handleArmEnd);
+joystickArmContainer.addEventListener('mouseleave', handleArmEnd);
+joystickArmContainer.addEventListener('touchstart', handleArmMove);
+joystickArmContainer.addEventListener('touchmove', handleArmMove);
+joystickArmContainer.addEventListener('touchend', handleArmEnd);
+// WebSocket support
+var targetUrl = 'ws://{location.host}/ws';
+var websocket;
+window.addEventListener("load", onLoad);
+
+function onLoad() {
+    initializeSocket();
+}
+
+function initializeSocket() {
+    console.log("Opening WebSocket connection MicroPython Server...");
+    websocket = new WebSocket(targetUrl);
+    websocket.onopen = onOpen;
+    websocket.onclose = onClose;
+    websocket.onmessage = onMessage;
+}
+function onOpen(event) {
+    console.log("Starting connection to WebSocket server..");
+}
+function onClose(event) {
+    console.log("Closing connection to server..");
+    setTimeout(initializeSocket, 2000);
+}
+
+function onMessage(event) {
+    console.log("WebSocket message received:", event);
+        if (event.data instanceof Blob) {
+            event.data.arrayBuffer().then(buffer => {
+                updateValues(buffer);
+            });
+        } else {
+            updateValues(event.data);
+    }
+}
+
+function updateValues(buffer) {
+
+    const imgData = new Uint8Array(buffer);
+    const imageData = ctx.createImageData(width, height);
+    let grayscaleData = [];
+
+    for (let i = 0; i < imgData.length; i += 2) {
+        const rgb565 = (imgData[i] << 8) | imgData[i + 1];
+        const r = ((rgb565 >> 11) & 0x1F) * 8;
+        const g = ((rgb565 >> 5) & 0x3F) * 4;
+        const b = (rgb565 & 0x1F) * 8;
+        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+        grayscaleData.push(gray);
+        const index = (i / 2) * 4;
+        imageData.data[index] = r;
+        imageData.data[index + 1] = g;
+        imageData.data[index + 2] = b;
+        imageData.data[index + 3] = 255; // Alpha
+    }
+
+    let minGray = 255;
+            let blackPointPosition = "N/A";
+
+            for (let y = 2; y < height - 2; y++) {
+                for (let x = 2; x < width - 2; x++) {
+                    const index = y * width + x;
+                    if (grayscaleData[index] < minGray) {
+                        minGray = grayscaleData[index];
+                        blackPointPosition = '({x}, {y})';
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            blackPointDisplay.textContent = 'Black Point Position: {blackPointPosition}';
+}
+
+function sendMessage(message) {
+    websocket.send(message);
+}
+// Gemelo Virtual
+const sceneContainer = document.getElementById('sceneContainer');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+sceneContainer.appendChild(renderer.domElement);
+// Cube (Base del robot)
+var geometry = new THREE.BoxGeometry(1.5, 0.1, 1.8);
+var material = new THREE.MeshStandardMaterial({ color: 0xa98307 });
+var cube = new THREE.Mesh(geometry, material);
+cube.castShadow = true;
+cube.position.set(0, 1, 0);
+scene.add(cube);
+// Front Plate
+var placa_geo1 = new THREE.BoxGeometry(0.1, 0.25, 0.9);
+var placa1 = new THREE.Mesh(placa_geo1, material);
+placa1.castShadow = true;
+placa1.position.set(-0.1, 1.25, 0.25);
+scene.add(placa1);
+// Right side Plate
+var placa_geo2 = new THREE.BoxGeometry(1, 2, 0.1);
+var placa2 = new THREE.Mesh(placa_geo2, material);
+placa2.castShadow = true;
+placa2.position.set(0.25, 1, -0.25);
+scene.add(placa2);
+// Left side Plate
+var placa_geo3 = new THREE.BoxGeometry(1, 2, 0.1);
+var placa3 = new THREE.Mesh(placa_geo3, material);
+placa3.castShadow = true;
+placa3.position.set(0.25, 1, 0.75);
+scene.add(placa3);
+// Back Plate
+var placa_geo4 = new THREE.BoxGeometry(0.1, 0.25, 0.9);
+var placa4 = new THREE.Mesh(placa_geo4, material);
+placa4.castShadow = true;
+placa4.position.set(0.65, 1.25, 0.25);
+scene.add(placa4);
+// Rotor 1
+var rotor1 = new THREE.Object3D();
+rotor1.position.set(0, 0.5, 0);
+cube.add(rotor1);
+// Articulacion 1
+var size_position1 = 0.5;
+var arti1_geo = new THREE.BoxGeometry(size_position1, 0.1, 0.05);
+var arti1 = new THREE.Mesh(arti1_geo, material);
+arti1.castShadow = true;
+arti1.position.set(size_position1 / 2, 0, 0);
+rotor1.add(arti1);
+// Rotor 2
+var rotor2 = new THREE.Object3D();
+rotor2.position.set(0.25, 0, 0);
+arti1.add(rotor2);
+// Articulacion 2
+var size_position2 = 1.5;
+var arti2_geo = new THREE.BoxGeometry(0.1, size_position2, 0.05);
+var arti2 = new THREE.Mesh(arti2_geo, material);
+arti2.castShadow = true;
+arti2.position.set(0, size_position2 / 2, 0);
+rotor2.add(arti2);
+// Rotor 3
+var rotor3 = new THREE.Object3D();
+rotor3.position.set(0, 0.75, 0);
+arti2.add(rotor3);
+// Articulacion 3
+var size_position3 = 1.5;
+var arti3_geo = new THREE.BoxGeometry(size_position3, 0.1, 0.05);
+var arti3 = new THREE.Mesh(arti3_geo, material);
+arti3.castShadow = true;
+arti3.position.set(-size_position3 / 2, 0, 0);
+rotor3.add(arti3);
+// Rotor 4
+var rotor4 = new THREE.Object3D();
+rotor4.position.set(0, 0.5, 0);
+cube.add(rotor4);
+// Articulacion 4
+var size_position4 = 1.5;
+var arti4_geo = new THREE.BoxGeometry(0.1, size_position4, 0.05);
+var arti4 = new THREE.Mesh(arti4_geo, material);
+arti4.castShadow = true;
+arti4.position.set(0, size_position4 / 2, 0);
+rotor4.add(arti4);
+// Rotor 5
+var rotor5 = new THREE.Object3D();
+rotor5.position.set(0, 0.5, 0.5);
+cube.add(rotor5);
+// Articulacion 5
+var size_position5 = 1.5;
+var arti5_geo = new THREE.BoxGeometry(0.1, size_position5, 0.05);
+var arti5 = new THREE.Mesh(arti5_geo, material);
+arti5.castShadow = true;
+arti5.position.set(0, size_position5 / 2, 0);
+rotor5.add(arti5);
+// Rotor 6
+var rotor6 = new THREE.Object3D();
+rotor6.position.set(0.5, 0.75, 0.5);
+cube.add(rotor6);
+// Articulacion 6
+var size_position6 = 1.4;
+var arti6_geo = new THREE.BoxGeometry(0.1, size_position6, 0.05);
+var arti6 = new THREE.Mesh(arti6_geo, material);
+arti6.castShadow = true;
+arti6.position.set(0, (size_position6 / 2), 0);
+rotor6.add(arti6);
+// Rotor 7
+var rotor7 = new THREE.Object3D();
+rotor7.position.set(0, 0.75, 0);
+arti5.add(rotor7);
+// Articulacion 7
+var size_position7 = 1;
+var arti7_geo = new THREE.BoxGeometry(size_position7, 0.1, 0.05);
+var arti7 = new THREE.Mesh(arti7_geo, material);
+arti7.castShadow = true;
+arti7.position.set(-size_position7 / 2, 0, 0);
+rotor7.add(arti7);
+// Rotor 8
+var rotor8 = new THREE.Object3D();
+rotor8.position.set(0, 0.75, 0);
+arti6.add(rotor8);
+// Articulacion 8
+var size_position8 = 0.5;
+var arti8_geo = new THREE.BoxGeometry(size_position8, 0.1, 0.05);
+var arti8 = new THREE.Mesh(arti8_geo, material);
+arti8.castShadow = true;
+arti8.position.set(-size_position8 / 2, 0, 0);
+rotor8.add(arti8);
+// Hand
+var mano_geo = new THREE.BoxGeometry(0.1, 0.1, 0.5);
+var mano = new THREE.Mesh(mano_geo, material);
+mano.castShadow = true;
+mano.position.set(-0.5, 0, -0.25);
+arti7.add(mano);
+
+function Cinematica_Directa(P){
+
+    sendMessage(JSON.stringify({dx: P.x, dy: P.y}));
+    var x = (0.02936 * P.x) - 2.43;
+    var y = (-0.0315 * P.y) + 2.3;
+    var q1 = Cinematica_Inversa(x, y, 1.5, 1)[0];
+    var q2 = Cinematica_Inversa(x, y, 1.5, 1)[1];
+
+    const q1r = ((q1 - 90) * Math.PI) / 180;
+    const q2r = ((q2 - 90) * Math.PI) / 180 + q1r;
+
+    return [q1r, q2r];
+}
+
+function Mover_Brazo(q1, q2) {
+
+    var angles = { x1: q2, x2: q1 - q2, x3: q1 };
+
+    Angle1(angles.x1);
+    Angle2(angles.x2);
+    Angle3(angles.x3);
+
+    return;
+}
+
+function Angle1(angle1) {
+
+    rotor1.rotation.z = angle1;
+
+    return;
+}
+
+function Angle2(angle2) {
+
+    rotor2.rotation.z = angle2;
+    rotor3.rotation.z = -angle2;
+    rotor7.rotation.z = -angle2;
+
+    return;
+}
+
+function Angle3 (angle3) {
+
+    rotor4.rotation.z = angle3;
+    rotor5.rotation.z = angle3;
+    rotor6.rotation.z = angle3;
+    rotor8.rotation.z = (Math.PI / 7.5) - angle3;
+
+    return;
+}
+
+function Posimag_posv(pos) {
+    var x = - 0.16 * pos;
+    const P2 = new THREE.Vector2((x + 2.43) / 0.02936 , 25.39);
+    const P3 = new THREE.Vector2((x + 2.43) / 0.02936, 73);
+
+    return [x, P2, P3];
+}
+
+const a1 = 1.5;
+const a2 = 1;
+
+var P0 = new THREE.Vector2(60, 50);
+var P1 = new THREE.Vector2(48.7 , 25.39);
+
+var t = 0;
+
+function Bezier(P0, P1, P2, P3, t) {
+
+    var C0 = P0.clone().multiplyScalar((1 - t)**3);
+    var C1 = P1.clone().multiplyScalar((1 - t)**2).multiplyScalar(3 * t);
+    var C2 = P2.clone().multiplyScalar(1 - t).multiplyScalar(3 * t**2);
+    var C3 = P3.clone().multiplyScalar(t**3);
+
+    return C0.add(C1).add(C2).add(C3);
+}
+
+function Cinematica_Inversa(x, y, l1, l2) {
+
+    const cos_q2 = (x * x + y * y - l1 * l1 - l2 * l2) / (2 * l1 * l2);
+    const cos_q2_clamped = Math.max(-1, Math.min(1, cos_q2));
+    const sin_q2 = Math.sqrt(1 - cos_q2_clamped ** 2);
+    const q2 = Math.atan2(sin_q2, cos_q2_clamped);
+    const q1 = Math.atan2(y, x) - Math.atan2(l2 * Math.sin(q2), l1 + l2 * Math.cos(q2));
+    const q1_degrees = Math.round((q1 * 180) / Math.PI * 100) / 100;
+    const q2_degrees = Math.round((q2 * 180) / Math.PI * 100) / 100;
+
+    return [q1_degrees, q2_degrees];
+}
+
+// Light
+var light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5, 10, 5);
+light.castShadow = true;
+scene.add(light);
+
+// Plane
+var planeGeometry = new THREE.PlaneGeometry(20, 20);
+var planeMaterial = new THREE.MeshStandardMaterial({ color: 0xfff0f0 });
+var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = -Math.PI / 2;
+plane.receiveShadow = true;
+plane.position.y = 0;
+scene.add(plane);
+
+// Ajustar la cámara
+camera.position.set(3, 3, 4);
+var cameraRotation = { x: 0, y: 0 };
+camera.lookAt(0, 0.5, 0);
+
+var aaa = 14;
+var pp = Posimag_posv(aaa)[0];
+var P2 = Posimag_posv(aaa)[1];
+var P3 = Posimag_posv(aaa)[2];
+var geo_obj = new THREE.BoxGeometry(0.1, 0.1, 1);
+var objetico = new THREE.Mesh(geo_obj, material);
+objetico.castShadow = true;
+objetico.position.set(pp, 1.5, 0);
+scene.add(objetico);
+
+function Recoger() {
+
+    var q1, q2;
+    var C = Bezier(P0, P1, P2, P3, t);
+    [q1, q2] = Cinematica_Directa(C);
+
+    if (t <= 1) {
+        t = t + 0.01;
+    }
+    else{
+        var temp0 = P0;
+        var temp1 = P1;
+        P0 = P3;
+        P1 = P2;
+        P2 = temp1;
+        P3 = temp0;
+        t = 0;
+
+    }
+    sendMessage(JSON.stringify({dq1: q1, dq2: q2}));
+
+    Mover_Brazo(q1, q2);
+}
+
+function animate() {
+
+    requestAnimationFrame(animate);
+/*
+    var C = {x: armPos.x, y: armPos.y};
+    [q1, q2] = Cinematica_Directa(C);
+    Mover_Brazo(q1, q2);
+    console.log(q1, q2);
+    console.log(C.x, C.y);
+*/
+
+    Recoger();
+
+    renderer.render(scene, camera);
+}
+
+animate();`,
+            'objeto-virtual': `// Variables para el joystick de la cámara (usando nipplejs)
+var cameraJoystick = nipplejs.create({
+    zone: document.getElementById('joystickCamera'),
+    mode: 'static',
+    position: { left: '50px', bottom: '50px' },
+    color: 'blue',
+    size: 100
+});
+
+var cameraRotation = { x: 0, y: 0 };
+// Actualizar rotación de la cámara
+function updateCameraRotation() {
+    camera.position.x = 5 * Math.sin(cameraRotation.y);
+    camera.position.z = 5 * Math.cos(cameraRotation.y);
+    camera.lookAt(0, 0.5, 0);
+}
+
+cameraJoystick.on('move', function (evt, data) {
+    if (data.direction) {
+        if (data.direction.angle === 'left') {
+            cameraRotation.y -= 0.05;
+        }
+        if (data.direction.angle === 'right') {
+            cameraRotation.y += 0.05;
+        }
+        updateCameraRotation();
+    }
+});
+// Variables para el joystick del brazo
+const joystickArm = document.getElementById('joystickArm');
+const joystickArmContainer = document.getElementById('joystickArmContainer');
+let armPos = { x: 50, y: 50 };
+
+
+const canvas = document.getElementById("cameraFeed");
+const ctx = canvas.getContext("2d");
+const width = 40;
+const height = 30;
+
+const thresholdInput = document.getElementById("threshold");
+const thresholdValueDisplay = document.getElementById("thresholdValue");
+const blackPointDisplay = document.getElementById("blackPoint");
+
+let threshold = parseInt(thresholdInput.value, 10);
+
+thresholdInput.addEventListener("input", () => {
+    threshold = parseInt(thresholdInput.value, 10);
+    thresholdValueDisplay.textContent = threshold;
+});
+
+// Obtener posición del joystick del brazo
+function getJoystickPosition(event) {
+    const rect = joystickArmContainer.getBoundingClientRect();
+    const offsetX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+    const offsetY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+    const x = Math.min(Math.max(offsetX - 25, 0), rect.width - 50);
+    const y = Math.min(Math.max(offsetY - 25, 0), rect.height - 50);
+    return { x, y };
+}
+
+function updateArmJoystickPosition(event) {
+    const { x, y } = getJoystickPosition(event);
+    joystickArm.style.left = '{x}px';
+    joystickArm.style.top = '{y}px';
+    return { x, y };
+}
+
+function handleArmMove(event) {
+    event.preventDefault();
+    armPos = updateArmJoystickPosition(event);
+  //sendMessage(JSON.stringify({dx: armPos.x, dy: armPos.y}));
+}
+
+function handleArmEnd() {
+    joystickArm.style.left = '50px';
+    joystickArm.style.top = '50px';
+    armPos = { x: 50, y: 50 };
+  //sendMessage(JSON.stringify({dx: 50, dy: 50}));
+
+}
+// Eventos para el joystick del brazo
+joystickArmContainer.addEventListener('mousedown', handleArmMove);
+joystickArmContainer.addEventListener('mousemove', handleArmMove);
+joystickArmContainer.addEventListener('mouseup', handleArmEnd);
+joystickArmContainer.addEventListener('mouseleave', handleArmEnd);
+joystickArmContainer.addEventListener('touchstart', handleArmMove);
+joystickArmContainer.addEventListener('touchmove', handleArmMove);
+joystickArmContainer.addEventListener('touchend', handleArmEnd);
+// WebSocket support
+var targetUrl = 'ws://{location.host}/ws';
+var websocket;
+window.addEventListener("load", onLoad);
+
+function onLoad() {
+initializeSocket();
+}
+
+function initializeSocket() {
+console.log("Opening WebSocket connection MicroPython Server...");
+websocket = new WebSocket(targetUrl);
+websocket.onopen = onOpen;
+websocket.onclose = onClose;
+websocket.onmessage = onMessage;
+}
+function onOpen(event) {
+console.log("Starting connection to WebSocket server..");
+}
+function onClose(event) {
+console.log("Closing connection to server..");
+setTimeout(initializeSocket, 2000);
+}
+function onMessage(event) {
+    console.log("WebSocket message received:", event);
+    if (event.data instanceof Blob) {
+        event.data.arrayBuffer().then(buffer => {
+            updateValues(buffer);
+        });
+    } else {
+        updateValues(event.data);
+    }
+}
+
+function updateValues(buffer) {
+
+    const imgData = new Uint8Array(buffer);
+    const imageData = ctx.createImageData(width, height);
+    let grayscaleData = [];
+
+    for (let i = 0; i < imgData.length; i += 2) {
+        const rgb565 = (imgData[i] << 8) | imgData[i + 1];
+        const r = ((rgb565 >> 11) & 0x1F) * 8;
+        const g = ((rgb565 >> 5) & 0x3F) * 4;
+        const b = (rgb565 & 0x1F) * 8;
+        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+        grayscaleData.push(gray);
+        const index = (i / 2) * 4;
+        imageData.data[index] = r;
+        imageData.data[index + 1] = g;
+        imageData.data[index + 2] = b;
+        imageData.data[index + 3] = 255; // Alpha
+    }
+
+let minGray = 255;
+let blackPointPosition = "N/A";
+
+        for (let y = 2; y < height - 2; y++) {
+            for (let x = 2; x < width - 2; x++) {
+                const index = y * width + x;
+                    if (grayscaleData[index] < minGray) {
+                        minGray = grayscaleData[index];
+                        blackPointPosition = '({x}, {y})'';
+                    }
+            }
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        blackPointDisplay.textContent = 'Black Point Position: {blackPointPosition};
+}
+
+function sendMessage(message) {
+websocket.send(message);
+}
+
+const sceneContainer = document.getElementById('sceneContainer');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+sceneContainer.appendChild(renderer.domElement);
+// Cube (Base del robot)
+var geometry = new THREE.BoxGeometry(1.5, 0.1, 1.8);
+var material = new THREE.MeshStandardMaterial({ color: 0xa98307 });
+var cube = new THREE.Mesh(geometry, material);
+cube.castShadow = true;
+cube.position.set(0, 1, 0);
+scene.add(cube);
+// Front Plate
+var placa_geo1 = new THREE.BoxGeometry(0.1, 0.25, 0.9);
+var placa1 = new THREE.Mesh(placa_geo1, material);
+placa1.castShadow = true;
+placa1.position.set(-0.1, 1.25, 0.25);
+scene.add(placa1);
+// Right side Plate
+var placa_geo2 = new THREE.BoxGeometry(1, 2, 0.1);
+var placa2 = new THREE.Mesh(placa_geo2, material);
+placa2.castShadow = true;
+placa2.position.set(0.25, 1, -0.25);
+scene.add(placa2);
+// Left side Plate
+var placa_geo3 = new THREE.BoxGeometry(1, 2, 0.1);
+var placa3 = new THREE.Mesh(placa_geo3, material);
+placa3.castShadow = true;
+placa3.position.set(0.25, 1, 0.75);
+scene.add(placa3);
+// Back Plate
+var placa_geo4 = new THREE.BoxGeometry(0.1, 0.25, 0.9);
+var placa4 = new THREE.Mesh(placa_geo4, material);
+placa4.castShadow = true;
+placa4.position.set(0.65, 1.25, 0.25);
+scene.add(placa4);
+// Rotor 1
+var rotor1 = new THREE.Object3D();
+rotor1.position.set(0, 0.5, 0);
+cube.add(rotor1);
+// Articulacion 1
+var size_position1 = 0.5;
+var arti1_geo = new THREE.BoxGeometry(size_position1, 0.1, 0.05);
+var arti1 = new THREE.Mesh(arti1_geo, material);
+arti1.castShadow = true;
+arti1.position.set(size_position1 / 2, 0, 0);
+rotor1.add(arti1);
+// Rotor 2
+var rotor2 = new THREE.Object3D();
+rotor2.position.set(0.25, 0, 0);
+arti1.add(rotor2);
+// Articulacion 2
+var size_position2 = 1.5;
+var arti2_geo = new THREE.BoxGeometry(0.1, size_position2, 0.05);
+var arti2 = new THREE.Mesh(arti2_geo, material);
+arti2.castShadow = true;
+arti2.position.set(0, size_position2 / 2, 0);
+rotor2.add(arti2);
+// Rotor 3
+var rotor3 = new THREE.Object3D();
+rotor3.position.set(0, 0.75, 0);
+arti2.add(rotor3);
+// Articulacion 3
+var size_position3 = 1.5;
+var arti3_geo = new THREE.BoxGeometry(size_position3, 0.1, 0.05);
+var arti3 = new THREE.Mesh(arti3_geo, material);
+arti3.castShadow = true;
+arti3.position.set(-size_position3 / 2, 0, 0);
+rotor3.add(arti3);
+// Rotor 4
+var rotor4 = new THREE.Object3D();
+rotor4.position.set(0, 0.5, 0);
+cube.add(rotor4);
+// Articulacion 4
+var size_position4 = 1.5;
+var arti4_geo = new THREE.BoxGeometry(0.1, size_position4, 0.05);
+var arti4 = new THREE.Mesh(arti4_geo, material);
+arti4.castShadow = true;
+arti4.position.set(0, size_position4 / 2, 0);
+rotor4.add(arti4);
+// Rotor 5
+var rotor5 = new THREE.Object3D();
+rotor5.position.set(0, 0.5, 0.5);
+cube.add(rotor5);
+// Articulacion 5
+var size_position5 = 1.5;
+var arti5_geo = new THREE.BoxGeometry(0.1, size_position5, 0.05);
+var arti5 = new THREE.Mesh(arti5_geo, material);
+arti5.castShadow = true;
+arti5.position.set(0, size_position5 / 2, 0);
+rotor5.add(arti5);
+// Rotor 6
+var rotor6 = new THREE.Object3D();
+rotor6.position.set(0.5, 0.75, 0.5);
+cube.add(rotor6);
+// Articulacion 6
+var size_position6 = 1.4;
+var arti6_geo = new THREE.BoxGeometry(0.1, size_position6, 0.05);
+var arti6 = new THREE.Mesh(arti6_geo, material);
+arti6.castShadow = true;
+arti6.position.set(0, (size_position6 / 2), 0);
+rotor6.add(arti6);
+// Rotor 7
+var rotor7 = new THREE.Object3D();
+rotor7.position.set(0, 0.75, 0);
+arti5.add(rotor7);
+// Articulacion 7
+var size_position7 = 1;
+var arti7_geo = new THREE.BoxGeometry(size_position7, 0.1, 0.05);
+var arti7 = new THREE.Mesh(arti7_geo, material);
+arti7.castShadow = true;
+arti7.position.set(-size_position7 / 2, 0, 0);
+rotor7.add(arti7);
+// Rotor 8
+var rotor8 = new THREE.Object3D();
+rotor8.position.set(0, 0.75, 0);
+arti6.add(rotor8);
+// Articulacion 8
+var size_position8 = 0.6;
+var arti8_geo = new THREE.BoxGeometry(size_position8, 0.1, 0.05);
+var arti8 = new THREE.Mesh(arti8_geo, material);
+arti8.castShadow = true;
+arti8.position.set(-size_position8 / 2, 0, 0);
+rotor8.add(arti8);
+// mano
+var mano_geo = new THREE.BoxGeometry(0.1, 0.1, 0.5);
+var mano = new THREE.Mesh(mano_geo, material);
+mano.castShadow = true;
+mano.position.set(-0.5, 0, -0.25);
+arti7.add(mano);
+
+function Cinematica_Directa(x1, y1){
+
+    var x = (0.02936 * x1) - 2.43;
+    var y = (-0.0315 * y1) + 2.3;
+    var q1 = Cinematica_Inversa(x, y, 1.5, 1)[0];
+    var q2 = Cinematica_Inversa(x, y, 1.5, 1)[1];
+
+    const q1r = ((q1 - 90) * Math.PI) / 180;
+    const q2r = (((q2 - 90) * Math.PI) / 180) + q1r;
+    rotor1.rotation.z = q2r;
+    rotor2.rotation.z = q1r - q2r;
+    rotor3.rotation.z = - q1r + q2r;
+    rotor4.rotation.z = q1r;
+    rotor5.rotation.z = q1r;
+    rotor6.rotation.z = q1r;
+    rotor7.rotation.z = - q1r + q2r;
+    rotor8.rotation.z = (Math.PI / 7.5) - q1r;
+
+}
+
+function Cinematica_Inversa(x, y, l1, l2) {
+
+    const cos_q2 = (x * x + y * y - l1 * l1 - l2 * l2) / (2 * l1 * l2);
+    const cos_q2_clamped = Math.max(-1, Math.min(1, cos_q2));
+    const sin_q2 = Math.sqrt(1 - cos_q2_clamped ** 2);
+    const q2 = Math.atan2(sin_q2, cos_q2_clamped);
+    const q1 = Math.atan2(y, x) - Math.atan2(l2 * Math.sin(q2), l1 + l2 * Math.cos(q2));
+    const q1_degrees = Math.round((q1 * 180) / Math.PI * 100) / 100;
+    const q2_degrees = Math.round((q2 * 180) / Math.PI * 100) / 100;
+
+return [q1_degrees, q2_degrees];
+}
+// Light
+var light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5, 10, 5);
+light.castShadow = true;
+scene.add(light);
+// Plane
+var planeGeometry = new THREE.PlaneGeometry(20, 20);
+var planeMaterial = new THREE.MeshStandardMaterial({ color: 0xfff0f0 });
+var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = -Math.PI / 2;
+plane.receiveShadow = true;
+plane.position.y = 0;
+scene.add(plane);
+// Ajustar la cámara
+camera.position.set(3, 3, 4);
+var cameraRotation = { x: 0, y: 0 };
+camera.lookAt(0, 0.5, 0);
+
+function animate() {
+    requestAnimationFrame(animate);
+    Cinematica_Directa(armPos.x, armPos.y);
+    renderer.render(scene, camera);
+}
+
+animate();`
+        }
+
+        const descripciones = {
+            'brazo-servos': 'Código para controlar los servos del brazo.',
+            'pantalla-oled': 'Código para la pantalla OLED.',
+            'gemelo-virtual': 'Código para el gemelo virtual.',
+            'control-remoto': 'Código para el control remoto.',
+            'camara-deteccion': 'Código para la cámara y detección de objetos.',
+            'recoger-soltar': 'Código para recoger y soltar objetos.',
+            'deteccion-movimiento': 'Código para la detección de movimiento.',
+            'curva-de-bezier': 'Código para calcular la curva de Bezier.',
+            'objeto-virtual': 'Código para el objeto virtual.'
+        };
+
+    function mostrarCodigo(id) {
+            document.getElementById('menu-codigos').style.display = 'none';
+            document.getElementById('codigo-titulo').textContent = titulos[id];
+            document.getElementById('codigo-descripcion').textContent = descripciones[id];
+            document.getElementById('codigo-texto').textContent = codigos[id] || "// Código no disponible";
+            document.getElementById('codigo-container').classList.add('show');
+            Prism.highlightAll(); // Aplicar resaltado de sintaxis
+        }
+
+    function volverAlMenu() {
+            document.getElementById('menu-codigos').style.display = 'block';
+            document.getElementById('codigo-container').classList.remove('show');
+        }
+
+    function mostrarVideosFuncionamiento() {
+        var videosDiv = document.getElementById("videos-funcionamiento");
+        if (videosDiv.style.display === "none") {
+            videosDiv.style.display = "block";
+        } else {
+            videosDiv.style.display = "none";
+        }
+    }
+
+    function mostrarVideoPresentacion() {
+    let videoContainer = document.getElementById("video-presentacion");
+    videoContainer.style.display = videoContainer.style.display === "block" ? "none" : "block";
+}
+
+    </script>
+</body>
+</html>
