@@ -1,4 +1,3 @@
-bezier y posicion:
 // Variables para el joystick de la cámara (usando nipplejs)
 var cameraJoystick = nipplejs.create({
     zone: document.getElementById('joystickCamera'),
@@ -295,9 +294,17 @@ mano.castShadow = true;
 mano.position.set(-0.5, 0, -0.25);
 arti7.add(mano);
 
+// Object
+var pobj = 1;
+var geo_obj = new THREE.BoxGeometry(0.2, 0.1, pobj);
+var materialo = new THREE.MeshStandardMaterial({ color: 0xff0000 }); // Rojo
+var objetico = new THREE.Mesh(geo_obj, materialo);
+
+
+
 function Cinematica_Directa(P){
 
-    sendMessage(JSON.stringify({dx: P.x, dy: P.y}));
+    //sendMessage(JSON.stringify({dx: P.x, dy: P.y}));
     var x = (0.02936 * P.x) - 2.43;
     var y = (-0.0315 * P.y) + 2.3;
     var q1 = Cinematica_Inversa(x, y, 1.5, 1)[0];
@@ -306,7 +313,7 @@ function Cinematica_Directa(P){
     const q1r = ((q1 - 90) * Math.PI) / 180;
     const q2r = ((q2 - 90) * Math.PI) / 180 + q1r;
    
-    return [q1r, q2r];
+    return [q1r, q2r, x, y];
 }
 
 function Mover_Brazo(q1, q2) {
@@ -345,32 +352,6 @@ function Angle3 (angle3) {
     
     return;
 }
-
-function Posimag_posv(pos) {
-    var x = - 0.16 * pos;
-    const P2 = new THREE.Vector2((x + 2.43) / 0.02936 , 25.39);
-    const P3 = new THREE.Vector2((x + 2.43) / 0.02936, 73);
-
-    return [x, P2, P3];
-}
-
-const a1 = 1.5;
-const a2 = 1;
-
-var P0 = new THREE.Vector2(60, 50);
-var P1 = new THREE.Vector2(48.7 , 25.39);
-
-var t = 0;
-
-function Bezier(P0, P1, P2, P3, t) {
-
-    var C0 = P0.clone().multiplyScalar((1 - t)**3);
-    var C1 = P1.clone().multiplyScalar((1 - t)**2).multiplyScalar(3 * t);
-    var C2 = P2.clone().multiplyScalar(1 - t).multiplyScalar(3 * t**2);
-    var C3 = P3.clone().multiplyScalar(t**3);
-
-    return C0.add(C1).add(C2).add(C3);
-}
  
 function Cinematica_Inversa(x, y, l1, l2) {
 
@@ -405,15 +386,34 @@ camera.position.set(3, 3, 4);
 var cameraRotation = { x: 0, y: 0 };
 camera.lookAt(0, 0.5, 0);
 
-var aaa = 14;
-var pp = Posimag_posv(aaa)[0];
-var P2 = Posimag_posv(aaa)[1];
-var P3 = Posimag_posv(aaa)[2];
-var geo_obj = new THREE.BoxGeometry(0.1, 0.1, 1);
-var objetico = new THREE.Mesh(geo_obj, material);
-objetico.castShadow = true;
-objetico.position.set(pp, 1.5, 0);
-scene.add(objetico);
+
+function Bezier(P0, P1, P2, P3, t) {
+
+    var C0 = P0.clone().multiplyScalar((1 - t)**3);
+    var C1 = P1.clone().multiplyScalar((1 - t)**2).multiplyScalar(3 * t);
+    var C2 = P2.clone().multiplyScalar(1 - t).multiplyScalar(3 * t**2);
+    var C3 = P3.clone().multiplyScalar(t**3);
+
+    return C0.add(C1).add(C2).add(C3);
+}
+
+function Pixel_Posicion(pos) {
+
+    var x = - 0.16 * pos;
+    const P2 = new THREE.Vector2((x + 2.43) / 0.02936 , 25.39);
+    const P3 = new THREE.Vector2((x + 2.43) / 0.02936, 73);
+
+    return [x, P2, P3];
+}
+
+function Crear_Objeto(punto) {
+
+    objetico.castShadow = true;
+    objetico.position.set(punto, 1.5, pobj / 4);
+    scene.add(objetico);
+
+    return;
+}
 
 function Recoger() {
 
@@ -439,6 +439,104 @@ function Recoger() {
     Mover_Brazo(q1, q2);
 }
 
+var Flag_captura = 0;
+var Ida = 0;
+var Tirar = 0;
+
+function IrVenir_Bezier(coordenada) {
+
+    if (!Flag_captura) {
+
+        var x = Pixel_Posicion(coordenada)[0];
+        P2 = Pixel_Posicion(coordenada)[1];
+        P3 = Pixel_Posicion(coordenada)[2];
+        Crear_Objeto(x);
+        Flag_captura = 1;
+        Ida = 1;
+    }
+// Ida
+    if(Flag_captura && Ida) {
+
+        var q1, q2;
+        var C = Bezier(P0, P1, P2, P3, t);
+        [q1, q2] = Cinematica_Directa(C);
+
+        if (t <= 1) {
+            t = t + 0.01;
+        }
+        else{
+            Ida = 0;
+            var temp0 = P0;
+            var temp1 = P1;
+            P0 = P3;
+            P1 = P2;
+            P2 = temp1;
+            P3 = temp0;
+            t = 0;
+        }
+        sendMessage(JSON.stringify({dq1: q1, dq2: q2}));
+
+        Mover_Brazo(q1, q2);
+    }
+// Vuelta
+    if(Flag_captura && (!Ida)) {
+
+        if (!Tirar) {
+
+            C = Bezier(P0, P1, P2, P3, t);
+            [q1, q2] = Cinematica_Directa(C);
+            var xv = Cinematica_Directa(C)[2];
+            var yv = Cinematica_Directa(C)[3];
+            objetico.position.x = xv;
+            objetico.position.y = yv + 1.5;
+
+            if (t <= 1) {
+                t = t + 0.01;
+            }
+            else{
+                Tirar = 1;
+            }
+            sendMessage(JSON.stringify({dq1: q1, dq2: q2}));
+
+            Mover_Brazo(q1, q2);    
+        } else {
+
+            Tirar_Objetico();
+        }
+    }  
+}
+
+function Tirar_Objetico() {
+
+    objetico.position.y -= 0.05;
+    console.log(objetico.position.y);
+    if (objetico.position.y < 1) {
+
+        Flag_captura = 0;
+        var temp0 = P0;
+        var temp1 = P1;
+        P0 = P3;
+        P1 = P2;
+        P2 = temp1;
+        P3 = temp0;
+        t = 0;
+        Tirar = 0;
+    }
+}
+
+const a1 = 1.5;
+const a2 = 1;
+
+var aaa = 14;
+
+var P0 = new THREE.Vector2(60, 50);
+var P1 = new THREE.Vector2(48.7 , 25.39);
+var P2 = Pixel_Posicion(aaa)[1];
+var P3 = Pixel_Posicion(aaa)[2];
+
+var t = 0;
+
+
 function animate() {
 
     requestAnimationFrame(animate);
@@ -450,8 +548,9 @@ function animate() {
     console.log(C.x, C.y);
 */
     if (aaa < 15) {
-
-        Recoger();
+/*
+        Recoger();*/
+        IrVenir_Bezier(aaa);
     }
     
     renderer.render(scene, camera);
