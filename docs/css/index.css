@@ -1,0 +1,36 @@
+* body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        #sceneContainer {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        /* Estilo para el joystick de la cámara (abajo a la izquierda) */
+        #joystickCamera {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+        /* Estilo para el joystick del brazo (abajo a la derecha) */
+        #joystickArmContainer {
+            width: 150px;
+            height: 150px;
+            background-color: #000000;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 20px;
+            right: 20px; /* Posicionado en la esquina inferior derecha */
+            touch-action: none;
+        }
+        #joystickArm {
+            width: 50px;
+            height: 50px;
+            background-color: #8d0808;
+            border-radius: 50%;
+            position: absolute;
+            left: 50px;
+            top: 50px;
+        }
