@@ -30,23 +30,6 @@ cameraJoystick.on('move', function (evt, data) {
 const joystickArm = document.getElementById('joystickArm');
 const joystickArmContainer = document.getElementById('joystickArmContainer');
 let armPos = { x: 50, y: 50 };
-
-const canvas = document.getElementById("cameraFeed");
-const ctx = canvas.getContext("2d");
-const width = 40;
-const height = 30;
-
-const thresholdInput = document.getElementById("threshold");
-const thresholdValueDisplay = document.getElementById("thresholdValue");
-const blackPointDisplay = document.getElementById("blackPoint");
-
-let threshold = parseInt(thresholdInput.value, 10);
-
-thresholdInput.addEventListener("input", () => {
-  threshold = parseInt(thresholdInput.value, 10);
-  thresholdValueDisplay.textContent = threshold;
-});
-
 // Obtener posición del joystick del brazo
 function getJoystickPosition(event) {
     const rect = joystickArmContainer.getBoundingClientRect();
@@ -67,14 +50,14 @@ function updateArmJoystickPosition(event) {
 function handleArmMove(event) {
     event.preventDefault();
     armPos = updateArmJoystickPosition(event);
-    //sendMessage(JSON.stringify({dx: armPos.x, dy: armPos.y}));
+    sendMessage(JSON.stringify({dx: armPos.x, dy: armPos.y}));
 }
 
 function handleArmEnd() {
     joystickArm.style.left = '50px';
     joystickArm.style.top = '50px';
     armPos = { x: 50, y: 50 };
-    //sendMessage(JSON.stringify({dx: 50, dy: 50}));
+    sendMessage(JSON.stringify({dx: 50, dy: 50}));
 
 }
 // Eventos para el joystick del brazo
@@ -108,59 +91,14 @@ function onClose(event) {
   console.log("Closing connection to server..");
   setTimeout(initializeSocket, 2000);
 }
-
 function onMessage(event) {
-    console.log("WebSocket message received:", event);
-      if (event.data instanceof Blob) {
-          event.data.arrayBuffer().then(buffer => {
-              updateValues(buffer);
-          });
-      } else {
-          updateValues(event.data);
-      }
-  }
-
-  function updateValues(buffer) {
-
-    const imgData = new Uint8Array(buffer);
-    const imageData = ctx.createImageData(width, height);
-    let grayscaleData = [];
-  
-    for (let i = 0; i < imgData.length; i += 2) {
-        const rgb565 = (imgData[i] << 8) | imgData[i + 1];
-        const r = ((rgb565 >> 11) & 0x1F) * 8;
-        const g = ((rgb565 >> 5) & 0x3F) * 4;
-        const b = (rgb565 & 0x1F) * 8;
-        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-        grayscaleData.push(gray);
-        const index = (i / 2) * 4;
-        imageData.data[index] = r;
-        imageData.data[index + 1] = g;
-        imageData.data[index + 2] = b;
-        imageData.data[index + 3] = 255; // Alpha
-    }
-  
-    let minGray = 255;
-            let blackPointPosition = "N/A";
-  
-            for (let y = 2; y < height - 2; y++) {
-                for (let x = 2; x < width - 2; x++) {
-                    const index = y * width + x;
-                    if (grayscaleData[index] < minGray) {
-                        minGray = grayscaleData[index];
-                        blackPointPosition = `(${x}, ${y})`;
-                    }
-                }
-            }
-  
-            ctx.putImageData(imageData, 0, 0);
-            blackPointDisplay.textContent = `Black Point Position: ${blackPointPosition}`;
-  }
+  console.log("WebSocket message received:", event);
+}
 
 function sendMessage(message) {
   websocket.send(message);
 }
-// Gemelo Virtual
+
 const sceneContainer = document.getElementById('sceneContainer');
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -281,78 +219,39 @@ var rotor8 = new THREE.Object3D();
 rotor8.position.set(0, 0.75, 0);
 arti6.add(rotor8);
 // Articulacion 8
-var size_position8 = 0.5;
+var size_position8 = 0.6;
 var arti8_geo = new THREE.BoxGeometry(size_position8, 0.1, 0.05);
 var arti8 = new THREE.Mesh(arti8_geo, material);
 arti8.castShadow = true;
 arti8.position.set(-size_position8 / 2, 0, 0);
 rotor8.add(arti8);
-// Hand
+// mano 
 var mano_geo = new THREE.BoxGeometry(0.1, 0.1, 0.5);
 var mano = new THREE.Mesh(mano_geo, material);
 mano.castShadow = true;
 mano.position.set(-0.5, 0, -0.25);
 arti7.add(mano);
 
-// Object
-var pobj = 1;
-var geo_obj = new THREE.BoxGeometry(0.2, 0.1, pobj);
-var materialo = new THREE.MeshStandardMaterial({ color: 0xff0000 }); // Rojo
-var objetico = new THREE.Mesh(geo_obj, materialo);
+function Cinematica_Directa(x1, y1){
 
-
-
-function Cinematica_Directa(P){
-
-    //sendMessage(JSON.stringify({dx: P.x, dy: P.y}));
-    var x = (0.02936 * P.x) - 2.43;
-    var y = (-0.0315 * P.y) + 2.3;
+    var x = (0.02936 * x1) - 2.43;
+    var y = (-0.0315 * y1) + 2.3;
     var q1 = Cinematica_Inversa(x, y, 1.5, 1)[0];
     var q2 = Cinematica_Inversa(x, y, 1.5, 1)[1];
-
-    const q1r = ((q1 - 90) * Math.PI) / 180;
-    const q2r = ((q2 - 90) * Math.PI) / 180 + q1r;
-   
-    return [q1r, q2r, x, y];
-}
-
-function Mover_Brazo(q1, q2) {
-
-    var angles = { x1: q2, x2: q1 - q2, x3: q1 };
-
-    Angle1(angles.x1);
-    Angle2(angles.x2);
-    Angle3(angles.x3);
-
-    return;
-}
-
-function Angle1(angle1) {
-
-    rotor1.rotation.z = angle1;
-
-    return;
-}
-
-function Angle2(angle2) {
-
-    rotor2.rotation.z = angle2;
-    rotor3.rotation.z = -angle2;
-    rotor7.rotation.z = -angle2;
-
-    return;
-}
-
-function Angle3 (angle3) {
-
-    rotor4.rotation.z = angle3;
-    rotor5.rotation.z = angle3;
-    rotor6.rotation.z = angle3;
-    rotor8.rotation.z = (Math.PI / 7.5) - angle3;
     
-    return;
+    const q1r = ((q1 - 90) * Math.PI) / 180;
+    const q2r = (((q2 - 90) * Math.PI) / 180) + q1r;
+    rotor1.rotation.z = q2r;
+    rotor2.rotation.z = q1r - q2r;
+    rotor3.rotation.z = - q1r + q2r;
+    rotor4.rotation.z = q1r;
+    rotor5.rotation.z = q1r;
+    rotor6.rotation.z = q1r;
+    rotor7.rotation.z = - q1r + q2r;
+    rotor8.rotation.z = (Math.PI / 7.5) - q1r;
+
 }
- 
+
 function Cinematica_Inversa(x, y, l1, l2) {
 
     const cos_q2 = (x * x + y * y - l1 * l1 - l2 * l2) / (2 * l1 * l2);
@@ -365,13 +264,11 @@ function Cinematica_Inversa(x, y, l1, l2) {
 
     return [q1_degrees, q2_degrees];
 }
-
 // Light
 var light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(5, 10, 5);
 light.castShadow = true;
 scene.add(light);
-
 // Plane
 var planeGeometry = new THREE.PlaneGeometry(20, 20);
 var planeMaterial = new THREE.MeshStandardMaterial({ color: 0xfff0f0 });
@@ -380,179 +277,14 @@ plane.rotation.x = -Math.PI / 2;
 plane.receiveShadow = true;
 plane.position.y = 0;
 scene.add(plane);
-
 // Ajustar la cámara
 camera.position.set(3, 3, 4);
 var cameraRotation = { x: 0, y: 0 };
 camera.lookAt(0, 0.5, 0);
 
-
-function Bezier(P0, P1, P2, P3, t) {
-
-    var C0 = P0.clone().multiplyScalar((1 - t)**3);
-    var C1 = P1.clone().multiplyScalar((1 - t)**2).multiplyScalar(3 * t);
-    var C2 = P2.clone().multiplyScalar(1 - t).multiplyScalar(3 * t**2);
-    var C3 = P3.clone().multiplyScalar(t**3);
-
-    return C0.add(C1).add(C2).add(C3);
-}
-
-function Pixel_Posicion(pos) {
-
-    var x = - 0.16 * pos;
-    const P2 = new THREE.Vector2((x + 2.43) / 0.02936 , 25.39);
-    const P3 = new THREE.Vector2((x + 2.43) / 0.02936, 73);
-
-    return [x, P2, P3];
-}
-
-function Crear_Objeto(punto) {
-
-    objetico.castShadow = true;
-    objetico.position.set(punto, 1.5, pobj / 4);
-    scene.add(objetico);
-
-    return;
-}
-
-function Recoger() {
-
-    var q1, q2;
-    var C = Bezier(P0, P1, P2, P3, t);
-    [q1, q2] = Cinematica_Directa(C);
-
-    if (t <= 1) {
-        t = t + 0.01;
-    }
-    else{
-        var temp0 = P0;
-        var temp1 = P1;
-        P0 = P3;
-        P1 = P2;
-        P2 = temp1;
-        P3 = temp0;
-        t = 0;
-        
-    }
-    sendMessage(JSON.stringify({dq1: q1, dq2: q2}));
-
-    Mover_Brazo(q1, q2);
-}
-
-var Flag_captura = 0;
-var Ida = 0;
-var Tirar = 0;
-
-function IrVenir_Bezier(coordenada) {
-
-    if (!Flag_captura) {
-
-        var x = Pixel_Posicion(coordenada)[0];
-        P2 = Pixel_Posicion(coordenada)[1];
-        P3 = Pixel_Posicion(coordenada)[2];
-        Crear_Objeto(x);
-        Flag_captura = 1;
-        Ida = 1;
-    }
-// Ida
-    if(Flag_captura && Ida) {
-
-        var q1, q2;
-        var C = Bezier(P0, P1, P2, P3, t);
-        [q1, q2] = Cinematica_Directa(C);
-
-        if (t <= 1) {
-            t = t + 0.01;
-        }
-        else{
-            Ida = 0;
-            var temp0 = P0;
-            var temp1 = P1;
-            P0 = P3;
-            P1 = P2;
-            P2 = temp1;
-            P3 = temp0;
-            t = 0;
-        }
-        sendMessage(JSON.stringify({dq1: q1, dq2: q2}));
-
-        Mover_Brazo(q1, q2);
-    }
-// Vuelta
-    if(Flag_captura && (!Ida)) {
-
-        if (!Tirar) {
-
-            C = Bezier(P0, P1, P2, P3, t);
-            [q1, q2] = Cinematica_Directa(C);
-            var xv = Cinematica_Directa(C)[2];
-            var yv = Cinematica_Directa(C)[3];
-            objetico.position.x = xv;
-            objetico.position.y = yv + 1.5;
-
-            if (t <= 1) {
-                t = t + 0.01;
-            }
-            else{
-                Tirar = 1;
-            }
-            sendMessage(JSON.stringify({dq1: q1, dq2: q2}));
-
-            Mover_Brazo(q1, q2);    
-        } else {
-
-            Tirar_Objetico();
-        }
-    }  
-}
-
-function Tirar_Objetico() {
-
-    objetico.position.y -= 0.05;
-    console.log(objetico.position.y);
-    if (objetico.position.y < 1) {
-
-        Flag_captura = 0;
-        var temp0 = P0;
-        var temp1 = P1;
-        P0 = P3;
-        P1 = P2;
-        P2 = temp1;
-        P3 = temp0;
-        t = 0;
-        Tirar = 0;
-    }
-}
-
-const a1 = 1.5;
-const a2 = 1;
-
-var aaa = 14;
-
-var P0 = new THREE.Vector2(60, 50);
-var P1 = new THREE.Vector2(48.7 , 25.39);
-var P2 = Pixel_Posicion(aaa)[1];
-var P3 = Pixel_Posicion(aaa)[2];
-
-var t = 0;
-
-
 function animate() {
-
     requestAnimationFrame(animate);
-/*
-    var C = {x: armPos.x, y: armPos.y};
-    [q1, q2] = Cinematica_Directa(C);
-    Mover_Brazo(q1, q2);
-    console.log(q1, q2);
-    console.log(C.x, C.y);
-*/
-    if (aaa < 15) {
-/*
-        Recoger();*/
-        IrVenir_Bezier(aaa);
-    }
-    
+    Cinematica_Directa(armPos.x, armPos.y);
     renderer.render(scene, camera);
 }
 
