@@ -2,33 +2,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyecto Integrado</title>
-    <link rel="stylesheet" href="index.css" />
+    <title>Gemelo Virtual y Control Remoto</title>
+
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
+
     <div id="sceneContainer">
-        <!-- Joystick para la cámara -->
+        <!-- Joystick para la cámara (izquierda inferior) -->
         <div id="joystickCamera"></div>
 
-        <!-- Joystick para el brazo -->
+        <!-- Joystick para el brazo (derecha inferior) -->
         <div id="joystickArmContainer">
             <div id="joystickArm"></div>
         </div>
-
-        <!-- Sección para el streaming de la cámara -->
-        <div id="cameraContainer">
-            <h1>Camera</h1>
-            <div class="controls">
-                <label for="threshold">Threshold: <span id="thresholdValue">128</span></label>
-                <input type="range" id="threshold" min="0" max="255" value="128">
-            </div>
-            <canvas id="cameraFeed" width="40" height="30"></canvas>
-            <p id="blackPoint">Black Point Position: N/A</p>
-        </div>
     </div>
-    
     <script src="https://cdn.jsdelivr.net/npm/three@0.126.1/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"></script>
     <script src="index.js"></script>
+
 </body>
 </html>
